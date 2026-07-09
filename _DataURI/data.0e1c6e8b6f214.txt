@@ -1,1 +1,0 @@
-chrome-extension://hiomakjbdlimgpanofghgneajckhejpj/ad-content.js
