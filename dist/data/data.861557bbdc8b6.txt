@@ -1,0 +1,1 @@
+chrome-extension://ijhfkkgjgpcplfeajghagkcebakjcpge/data/inject/block/isolated.js

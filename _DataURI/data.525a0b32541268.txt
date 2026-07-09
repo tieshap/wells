@@ -1,0 +1,1 @@
+chrome-extension://ocodgmmffbkkeecmadcijjhkmeohinei/injectedScript.bundle.js

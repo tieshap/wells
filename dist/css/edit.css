@@ -1,0 +1,555 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --border-focus: #94a3b8;
+  --primary: #0f172a;
+  --primary-foreground: #f8fafc;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #fef2f2;
+  --success: #10b981;
+  --success-foreground: #ecfdf5;
+  --radius: 0.5rem;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body.edit-body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.edit-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.edit-logo {
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+.edit-top-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.edit-top-right a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.edit-top-right a:hover {
+  color: var(--foreground);
+}
+
+.edit-badge {
+  background: var(--destructive);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#admin-email {
+  color: var(--muted-foreground) !important;
+}
+
+/* Layout */
+.edit-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.edit-header {
+  margin-bottom: 32px;
+}
+
+.edit-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.edit-icon-lg {
+  width: 24px;
+  height: 24px;
+  color: var(--foreground);
+}
+
+.edit-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.edit-header p {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Tabs */
+.edit-tabs-wrapper {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.edit-tabs {
+  display: flex;
+  gap: 24px;
+}
+
+.edit-tab {
+  background: transparent;
+  border: none;
+  padding: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.edit-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.edit-tab:hover {
+  color: var(--foreground);
+}
+
+.edit-tab.active {
+  color: var(--foreground);
+  border-bottom-color: var(--foreground);
+}
+
+/* Controls */
+.edit-search-box {
+  position: relative;
+}
+
+.edit-search-box input {
+  width: 100%;
+  max-width: 320px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: #fff;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  outline: none;
+  font-family: inherit;
+}
+
+.edit-search-box input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+}
+
+/* Tables */
+.edit-table-wrapper {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  overflow: hidden;
+}
+
+.edit-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.edit-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.edit-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--foreground);
+}
+
+.edit-table tr:hover td {
+  background: #f8fafc;
+}
+
+.edit-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.badge-admin {
+  background: var(--destructive-foreground);
+  color: var(--destructive);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-user {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+}
+
+.badge-outline {
+  background: transparent;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-foreground {
+  color: var(--foreground);
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Account row specific */
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.account-row-label {
+  color: var(--muted-foreground);
+  min-width: 70px;
+}
+
+.account-row-bal {
+  font-weight: 500;
+  color: var(--foreground);
+  flex: 1;
+  text-align: right;
+  margin-right: 12px;
+}
+
+.account-row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.icon-btn.edit-action-btn:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.icon-btn.delete-action-btn:hover {
+  background: var(--destructive-foreground);
+  color: var(--destructive);
+}
+
+/* Buttons */
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  outline: none;
+  font-family: inherit;
+}
+
+.edit-btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.edit-btn-primary:hover {
+  background: #1e293b;
+}
+
+.edit-btn-secondary {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.edit-btn-secondary:hover {
+  background: var(--muted);
+}
+
+.edit-btn-outline {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.edit-btn-outline:hover {
+  background: var(--muted);
+}
+
+.edit-btn-danger {
+  background: var(--destructive);
+  color: white;
+}
+
+.edit-btn-danger:hover {
+  background: #dc2626;
+}
+
+.edit-btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.edit-btn-success:hover {
+  background: #059669;
+}
+
+.edit-btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.action-cell {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* Modals */
+.edit-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.edit-modal-overlay.open {
+  display: flex;
+  opacity: 1;
+}
+
+.edit-modal {
+  background: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  transform: translateY(10px) scale(0.98);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.edit-modal-overlay.open .edit-modal {
+  transform: translateY(0) scale(1);
+}
+
+.edit-modal h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.edit-modal-subtitle {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.edit-form-group {
+  margin-bottom: 16px;
+}
+
+.edit-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 6px;
+}
+
+.edit-form-group input,
+.edit-form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: #fff;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+.edit-form-group input:focus,
+.edit-form-group select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+}
+
+.edit-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* Tab panels */
+.edit-tab-panel {
+  display: none;
+}
+.edit-tab-panel.active {
+  display: block;
+}
+
+/* Tx specific */
+.edit-tx-type {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.edit-tx-type label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+/* Flash */
+.edit-flash {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  display: none;
+}
+
+.edit-flash.success {
+  display: block;
+  background: var(--success-foreground);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.edit-flash.error {
+  display: block;
+  background: var(--destructive-foreground);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--destructive);
+}
+
+/* Password Gate */
+.edit-modal-icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: var(--muted);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  color: var(--foreground);
+}
+
+@media (max-width: 600px) {
+  .edit-container { padding: 20px 16px; }
+  .edit-tabs { gap: 16px; }
+  .action-cell { flex-direction: column; }
+}

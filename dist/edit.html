@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Edit Accounts</title>
+  <link rel="stylesheet" href="css/edit.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</head>
+<body class="edit-body">
+
+  <!-- Top Bar -->
+  <header class="edit-topbar">
+    <a href="index.html" class="edit-logo">WELLS FARGO</a>
+    <div class="edit-top-right">
+      <span class="edit-badge">Admin</span>
+      <span id="admin-email"></span>
+      <a href="dashboard.html">Dashboard</a>
+      <button class="edit-btn edit-btn-outline edit-btn-sm" onclick="signOut()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="edit-container">
+
+    <!-- Flash Messages -->
+    <div id="edit-flash" class="edit-flash"></div>
+
+    <!-- Header -->
+    <div class="edit-header">
+      <div class="edit-header-title">
+        <svg class="edit-icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <h1>Admin Panel</h1>
+      </div>
+      <p>Manage users, account balances, and transaction history</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="edit-tabs-wrapper">
+      <div class="edit-tabs" id="edit-tabs">
+        <button class="edit-tab active" onclick="switchTab('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Users & Accounts
+        </button>
+        <button class="edit-tab" onclick="switchTab('transactions')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          All Transactions
+        </button>
+      </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div class="edit-tab-panel active" id="panel-users">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <div class="edit-search-box" style="margin:0;flex:1;min-width:200px;">
+          <input type="text" id="user-search" placeholder="Search by name or email..." oninput="filterUsers()">
+        </div>
+        <button class="edit-btn edit-btn-success" onclick="openCreateUserModal()" style="white-space:nowrap;">
+          <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right:6px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Create User
+        </button>
+      </div>
+
+      <div class="edit-table-wrapper">
+        <table class="edit-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Accounts</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b;">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS TAB -->
+    <div class="edit-tab-panel" id="panel-transactions">
+      <div class="edit-table-wrapper">
+        <table class="edit-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th style="text-align:right;">Amount</th>
+              <th>Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-table-body">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b;">Loading transactions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:20px;text-align:right;">
+        <button class="edit-btn edit-btn-success" onclick="openAddTransactionModal()">
+          <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right:6px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add Transaction
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================== EDIT ACCOUNT MODAL ======================== -->
+  <div class="edit-modal-overlay" id="edit-account-modal">
+    <div class="edit-modal">
+      <h2 id="account-modal-title">Edit Account</h2>
+      <p class="edit-modal-subtitle" id="account-modal-subtitle">Update balance and account details</p>
+      
+      <input type="hidden" id="edit-account-id">
+      
+      <div class="edit-form-group">
+        <label>Account Type</label>
+        <select id="edit-account-type">
+          <option value="checking">Checking</option>
+          <option value="savings">Savings</option>
+          <option value="credit_card">Credit Card</option>
+        </select>
+      </div>
+
+      <div class="edit-form-group">
+        <label>Account Number</label>
+        <input type="text" id="edit-account-number">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Balance ($)</label>
+        <input type="number" step="0.01" id="edit-account-balance">
+      </div>
+
+      <div class="edit-form-group" id="credit-limit-group">
+        <label>Credit Limit ($)</label>
+        <input type="number" step="0.01" id="edit-account-credit-limit">
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('edit-account-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-primary" onclick="saveAccountChanges()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== EDIT TRANSACTION MODAL ======================== -->
+  <div class="edit-modal-overlay" id="edit-tx-modal">
+    <div class="edit-modal">
+      <h2 id="tx-modal-title">Edit Transaction</h2>
+      <p class="edit-modal-subtitle">Update transaction details</p>
+      
+      <input type="hidden" id="edit-tx-id">
+      <input type="hidden" id="edit-tx-account-id">
+
+      <div class="edit-form-group">
+        <label>Date</label>
+        <input type="date" id="edit-tx-date">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Description</label>
+        <input type="text" id="edit-tx-description">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Amount ($)</label>
+        <input type="number" step="0.01" id="edit-tx-amount">
+      </div>
+
+      <div class="edit-tx-type">
+        <label><input type="radio" name="tx-type" value="debit" checked> Debit (charge)</label>
+        <label><input type="radio" name="tx-type" value="credit"> Credit (payment/refund)</label>
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('edit-tx-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-primary" onclick="saveTxChanges()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ADD TRANSACTION MODAL ======================== -->
+  <div class="edit-modal-overlay" id="add-tx-modal">
+    <div class="edit-modal">
+      <h2>Add Transaction</h2>
+      <p class="edit-modal-subtitle">Create a new transaction for an account</p>
+
+      <div class="edit-form-group">
+        <label>Account</label>
+        <select id="add-tx-account"></select>
+      </div>
+
+      <div class="edit-form-group">
+        <label>Date</label>
+        <input type="date" id="add-tx-date">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Description</label>
+        <input type="text" id="add-tx-description" placeholder="e.g. Direct Deposit, ATM Withdrawal">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Amount ($)</label>
+        <input type="number" step="0.01" id="add-tx-amount" placeholder="0.00">
+      </div>
+
+      <div class="edit-tx-type">
+        <label><input type="radio" name="add-tx-type" value="debit" checked> Debit (charge)</label>
+        <label><input type="radio" name="add-tx-type" value="credit"> Credit (payment/refund)</label>
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('add-tx-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-success" onclick="submitNewTransaction()">Add Transaction</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== CREATE USER MODAL ======================== -->
+  <div class="edit-modal-overlay" id="create-user-modal">
+    <div class="edit-modal">
+      <h2>Create User</h2>
+      <p class="edit-modal-subtitle">Create a new user account with optional initial balances</p>
+
+      <div style="border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px;">
+        <h3 style="font-size:14px;margin:0 0 12px;color:var(--foreground);">Account Credentials</h3>
+        
+        <div class="edit-form-group">
+          <label>Full Name</label>
+          <input type="text" id="create-user-name" placeholder="e.g. John Smith">
+        </div>
+
+        <div class="edit-form-group">
+          <label>Email *</label>
+          <input type="email" id="create-user-email" placeholder="e.g. john@example.com">
+        </div>
+
+        <div class="edit-form-group">
+          <label>Password *</label>
+          <input type="text" id="create-user-password" placeholder="e.g. mypassword123" value="password2026">
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-size:14px;margin:0 0 12px;color:var(--foreground);">Initial Account Balances (optional)</h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="edit-form-group">
+            <label>Checking Balance ($)</label>
+            <input type="number" step="0.01" id="create-user-checking" placeholder="0.00" value="1000.00">
+          </div>
+
+          <div class="edit-form-group">
+            <label>Savings Balance ($)</label>
+            <input type="number" step="0.01" id="create-user-savings" placeholder="0.00" value="500.00">
+          </div>
+
+          <div class="edit-form-group">
+            <label>Credit Card Balance ($)</label>
+            <input type="number" step="0.01" id="create-user-cc" placeholder="0.00" value="0.00">
+          </div>
+
+          <div class="edit-form-group">
+            <label>Credit Limit ($)</label>
+            <input type="number" step="0.01" id="create-user-cc-limit" placeholder="0.00" value="5000.00">
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('create-user-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-success" onclick="submitCreateUser()" id="create-user-btn">Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ADD ACCOUNT MODAL ======================== -->
+  <div class="edit-modal-overlay" id="add-account-modal">
+    <div class="edit-modal">
+      <h2>Add Account</h2>
+      <p class="edit-modal-subtitle" id="add-account-subtitle">Add a new account for this user</p>
+      
+      <input type="hidden" id="add-account-user-id">
+
+      <div class="edit-form-group">
+        <label>Account Type</label>
+        <select id="add-account-type">
+          <option value="checking">Checking</option>
+          <option value="savings">Savings</option>
+          <option value="credit_card">Credit Card</option>
+        </select>
+      </div>
+
+      <div class="edit-form-group">
+        <label>Account Number</label>
+        <input type="text" id="add-account-number" placeholder="Auto-generated if left empty">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Balance ($)</label>
+        <input type="number" step="0.01" id="add-account-balance" placeholder="0.00" value="0.00">
+      </div>
+
+      <div class="edit-form-group" id="add-credit-limit-group">
+        <label>Credit Limit ($)</label>
+        <input type="number" step="0.01" id="add-account-credit-limit" placeholder="0.00" value="5000.00">
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('add-account-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-primary" onclick="submitAddAccount()">Add Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ADMIN PASSWORD GATE ======================== -->
+  <div class="edit-modal-overlay" id="password-gate" style="display:flex;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);">
+    <div class="edit-modal" style="max-width:400px;text-align:center;">
+      <div class="edit-modal-icon-container">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h2 style="margin-bottom:5px;">Admin Access</h2>
+      <p class="edit-modal-subtitle">Enter the admin password to manage accounts</p>
+
+      <form onsubmit="checkAdminPassword();return false;">
+        <div class="edit-form-group">
+          <input type="password" id="admin-password-input" placeholder="Admin password" 
+                 style="text-align:center;font-size:16px;padding:12px;margin-bottom:8px;">
+        </div>
+
+        <div id="password-error" class="edit-flash error" style="margin-bottom:16px;">
+          Incorrect password
+        </div>
+
+        <button type="submit" class="edit-btn edit-btn-primary" 
+                style="width:100%;padding:12px;font-size:14px;">
+          Unlock Admin Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    var allProfiles = [];
+    var allAccounts = [];
+    var allTransactions = [];
+
+    // ======================== PASSWORD GATE ========================
+    function checkAdminPassword() {
+      var password = document.getElementById('admin-password-input').value;
+      if (password === 'password2026') {
+        sessionStorage.setItem('admin_authenticated', 'true');
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('admin-email').innerText = 'Admin Session';
+        loadAdminData();
+      } else {
+        document.getElementById('password-error').style.display = 'block';
+        document.getElementById('admin-password-input').value = '';
+        document.getElementById('admin-password-input').focus();
+      }
+    }
+
+    // ======================== SESSION CHECK ========================
+    (async function() {
+      // Check if already authenticated via sessionStorage
+      if (sessionStorage.getItem('admin_authenticated') === 'true') {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('admin-email').innerText = 'Admin Session';
+        await loadAdminData();
+        return;
+      }
+
+      // User must be logged into Supabase for data access
+      var user = await getCurrentUser();
+      if (!user) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      // Password gate is shown — wait for password entry
+    })();
+
+    // ======================== LOAD DATA ========================
+    async function loadAdminData() {
+      try {
+        allProfiles = await adminGetAllProfiles();
+        allAccounts = await adminGetAllAccounts();
+        allTransactions = await adminGetAllTransactions();
+        renderUsers();
+        renderTransactions();
+      } catch (err) {
+        showFlash('Error loading data: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== TAB SWITCHING ========================
+    function switchTab(tab) {
+      document.querySelectorAll('.edit-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.edit-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+
+      if (tab === 'users') {
+        document.querySelectorAll('.edit-tab')[0].classList.add('active');
+        document.getElementById('panel-users').classList.add('active');
+      } else {
+        document.querySelectorAll('.edit-tab')[1].classList.add('active');
+        document.getElementById('panel-transactions').classList.add('active');
+      }
+    }
+
+    // ======================== RENDER USERS ========================
+    function renderUsers() {
+      var tbody = document.getElementById('users-table-body');
+      var search = (document.getElementById('user-search').value || '').toLowerCase();
+
+      var filtered = allProfiles.filter(function(p) {
+        return p.email.toLowerCase().includes(search) || 
+               (p.full_name && p.full_name.toLowerCase().includes(search));
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted-foreground);">No users found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filtered.forEach(function(profile) {
+        var userAccounts = allAccounts.filter(function(a) { return a.user_id === profile.id; });
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="font-medium">${profile.full_name || '—'}</td>
+          <td class="text-muted">${profile.email}</td>
+          <td>${profile.is_admin ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-user">User</span>'}</td>
+          <td>
+            ${userAccounts.length > 0 
+              ? userAccounts.map(function(a) { 
+                  var label = a.type === 'checking' ? 'Checking' : a.type === 'savings' ? 'Savings' : 'Credit Card';
+                  return '<div class="account-row">' 
+                    + '<span class="account-row-label">' + label + '</span>'
+                    + '<span class="account-row-bal">' + formatCurrency(a.balance) + '</span>'
+                    + '<div class="account-row-actions">'
+                    + '<button class="icon-btn edit-action-btn" onclick="openEditAccountModal(\'' + a.id + '\');return false;" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>'
+                    + '<button class="icon-btn delete-action-btn" onclick="deleteAccount(\'' + a.id + '\', \'' + label + '\');return false;" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>'
+                    + '</div></div>';
+                }).join('')
+              : '<span class="text-muted">No accounts</span>'
+            }
+          </td>
+          <td class="action-cell" style="flex-wrap: wrap;">
+            <button class="edit-btn edit-btn-secondary edit-btn-sm" onclick="openAddAccountModal('${profile.id}', '${profile.email}')">Add Account</button>
+            ${profile.is_admin ? '' : '<button class="edit-btn edit-btn-outline edit-btn-sm" onclick="makeAdmin(\'' + profile.id + '\', \'' + profile.email + '\')">Make Admin</button>'}
+            <button class="edit-btn edit-btn-danger edit-btn-sm" onclick="deleteUser('${profile.id}', '${profile.email}')">Delete User</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterUsers() {
+      renderUsers();
+    }
+
+    // ======================== MAKE ADMIN ========================
+    async function makeAdmin(userId, email) {
+      if (!confirm('Make ' + email + ' an admin? They will get access to the edit panel.')) return;
+
+      var { error } = await supabaseAdmin
+        .from('profiles')
+        .update({ is_admin: true })
+        .eq('id', userId);
+
+      if (error) {
+        showFlash('Error: ' + error.message, 'error');
+      } else {
+        showFlash(email + ' is now an admin!', 'success');
+        await loadAdminData();
+      }
+    }
+
+    // ======================== DELETE USER ========================
+    async function deleteUser(userId, email) {
+      if (!confirm('Are you sure you want to permanently delete the user ' + email + '? This will also delete all their accounts and transactions.')) return;
+
+      try {
+        await adminDeleteUser(userId);
+        showFlash('User ' + email + ' deleted!', 'success');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== EDIT ACCOUNT MODAL ========================
+    function openEditAccountModal(accountId) {
+      var account = allAccounts.find(function(a) { return a.id === accountId; });
+      if (!account) return;
+
+      document.getElementById('edit-account-id').value = account.id;
+      document.getElementById('edit-account-type').value = account.type;
+      document.getElementById('edit-account-number').value = account.account_number;
+      document.getElementById('edit-account-balance').value = account.balance;
+      document.getElementById('edit-account-credit-limit').value = account.credit_limit || '';
+
+      document.getElementById('credit-limit-group').style.display = 
+        account.type === 'credit_card' ? 'block' : 'none';
+
+      document.getElementById('account-modal-title').innerText = 'Edit ' + getAccountLabel(account.type);
+      document.getElementById('account-modal-subtitle').innerText = 'Account #****' + account.account_number.slice(-4);
+
+      openModal('edit-account-modal');
+    }
+
+    // Change credit limit visibility on type change
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('edit-account-type').addEventListener('change', function() {
+        document.getElementById('credit-limit-group').style.display = 
+          this.value === 'credit_card' ? 'block' : 'none';
+      });
+    });
+
+    async function saveAccountChanges() {
+      var id = document.getElementById('edit-account-id').value;
+      var type = document.getElementById('edit-account-type').value;
+      var accountNumber = document.getElementById('edit-account-number').value;
+      var balance = parseFloat(document.getElementById('edit-account-balance').value);
+      var creditLimit = document.getElementById('edit-account-credit-limit').value;
+
+      var updates = { type: type, account_number: accountNumber, balance: balance };
+      if (type === 'credit_card') {
+        updates.credit_limit = parseFloat(creditLimit) || 0;
+      } else {
+        updates.credit_limit = null;
+      }
+
+      try {
+        await adminUpdateAccount(id, updates);
+        showFlash('Account updated successfully!', 'success');
+        closeModal('edit-account-modal');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== RENDER TRANSACTIONS ========================
+    function renderTransactions() {
+      var tbody = document.getElementById('transactions-table-body');
+
+      if (allTransactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted-foreground);">No transactions found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      allTransactions.forEach(function(tx) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-muted">${formatDate(tx.date)}</td>
+          <td class="font-medium">${tx.description}</td>
+          <td style="text-align:right;" class="font-medium ${tx.type === 'credit' ? 'text-success' : 'text-foreground'}">
+            ${tx.type === 'credit' ? '+' : '-'}${formatCurrency(tx.amount)}
+          </td>
+          <td><span class="badge badge-outline" style="text-transform:capitalize;">${tx.type}</span></td>
+          <td class="action-cell">
+            <button class="icon-btn edit-action-btn" onclick="openEditTxModal('${tx.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            <button class="icon-btn delete-action-btn" onclick="deleteTx('${tx.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ======================== EDIT TRANSACTION MODAL ========================
+    function openEditTxModal(txId) {
+      var tx = allTransactions.find(function(t) { return t.id === txId; });
+      if (!tx) return;
+
+      document.getElementById('edit-tx-id').value = tx.id;
+      document.getElementById('edit-tx-account-id').value = tx.account_id;
+      document.getElementById('edit-tx-date').value = tx.date;
+      document.getElementById('edit-tx-description').value = tx.description;
+      document.getElementById('edit-tx-amount').value = tx.amount;
+
+      var radios = document.getElementsByName('tx-type');
+      for (var i = 0; i < radios.length; i++) {
+        radios[i].checked = radios[i].value === tx.type;
+      }
+
+      openModal('edit-tx-modal');
+    }
+
+    async function saveTxChanges() {
+      var txId = document.getElementById('edit-tx-id').value;
+      var date = document.getElementById('edit-tx-date').value;
+      var description = document.getElementById('edit-tx-description').value;
+      var amount = parseFloat(document.getElementById('edit-tx-amount').value);
+      var type = document.querySelector('input[name="tx-type"]:checked').value;
+
+      try {
+        await adminUpdateTransaction(txId, { date: date, description: description, amount: amount, type: type });
+        showFlash('Transaction updated!', 'success');
+        closeModal('edit-tx-modal');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== DELETE TRANSACTION ========================
+    async function deleteTx(txId) {
+      if (!confirm('Delete this transaction?')) return;
+
+      try {
+        await adminDeleteTransaction(txId);
+        showFlash('Transaction deleted!', 'success');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== ADD TRANSACTION ========================
+    async function openAddTransactionModal() {
+      var select = document.getElementById('add-tx-account');
+      select.innerHTML = '';
+
+      allAccounts.forEach(function(a) {
+        var opt = document.createElement('option');
+        opt.value = a.id;
+        var profile = allProfiles.find(function(p) { return p.id === a.user_id; });
+        opt.innerText = getAccountLabel(a.type) + ' (****' + a.account_number.slice(-4) + ') - ' + (profile ? profile.email : '');
+        select.appendChild(opt);
+      });
+
+      document.getElementById('add-tx-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('add-tx-description').value = '';
+      document.getElementById('add-tx-amount').value = '';
+
+      openModal('add-tx-modal');
+    }
+
+    async function submitNewTransaction() {
+      var accountId = document.getElementById('add-tx-account').value;
+      var date = document.getElementById('add-tx-date').value;
+      var description = document.getElementById('add-tx-description').value.trim();
+      var amount = parseFloat(document.getElementById('add-tx-amount').value);
+      var type = document.querySelector('input[name="add-tx-type"]:checked').value;
+
+      if (!description) { showFlash('Please enter a description', 'error'); return; }
+      if (!amount || amount <= 0) { showFlash('Please enter a valid amount', 'error'); return; }
+
+      try {
+        await adminAddTransaction({
+          account_id: accountId,
+          date: date,
+          description: description,
+          amount: amount,
+          type: type,
+          category: 'other'
+        });
+        showFlash('Transaction added! Balance updated.', 'success');
+        closeModal('add-tx-modal');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== MODAL HELPERS ========================
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Close modals on overlay click
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('edit-modal-overlay')) {
+        e.target.classList.remove('open');
+      }
+    });
+
+    // ======================== CREATE USER ========================
+    function openCreateUserModal() {
+      document.getElementById('create-user-name').value = '';
+      document.getElementById('create-user-email').value = '';
+      document.getElementById('create-user-password').value = 'password2026';
+      document.getElementById('create-user-checking').value = '1000.00';
+      document.getElementById('create-user-savings').value = '500.00';
+      document.getElementById('create-user-cc').value = '0.00';
+      document.getElementById('create-user-cc-limit').value = '5000.00';
+      document.getElementById('create-user-btn').disabled = false;
+      document.getElementById('create-user-btn').innerText = 'Create User';
+      openModal('create-user-modal');
+    }
+
+    async function submitCreateUser() {
+      var email = document.getElementById('create-user-email').value.trim();
+      var password = document.getElementById('create-user-password').value.trim();
+      var name = document.getElementById('create-user-name').value.trim();
+      var checkingBal = parseFloat(document.getElementById('create-user-checking').value) || 0;
+      var savingsBal = parseFloat(document.getElementById('create-user-savings').value) || 0;
+      var ccBal = parseFloat(document.getElementById('create-user-cc').value) || 0;
+      var ccLimit = parseFloat(document.getElementById('create-user-cc-limit').value) || 0;
+
+      if (!email) { showFlash('Email is required', 'error'); return; }
+      if (!password) { showFlash('Password is required', 'error'); return; }
+
+      var btn = document.getElementById('create-user-btn');
+      btn.disabled = true;
+      btn.innerText = 'Creating...';
+
+      // Build accounts array with non-zero balances
+      var accounts = [];
+      if (checkingBal > 0) {
+        accounts.push({ type: 'checking', balance: checkingBal });
+      }
+      if (savingsBal > 0) {
+        accounts.push({ type: 'savings', balance: savingsBal });
+      }
+      if (ccLimit > 0) {
+        accounts.push({ type: 'credit_card', balance: ccBal, creditLimit: ccLimit });
+      }
+
+      try {
+        var userId = await adminCreateUser(email, password, name, accounts);
+        showFlash('User created! ID: ' + userId, 'success');
+        closeModal('create-user-modal');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerText = 'Create User';
+      }
+    }
+
+    // ======================== DELETE ACCOUNT ========================
+    async function deleteAccount(accountId, label) {
+      if (!confirm('Delete this ' + label + ' account? This will also delete all its transactions.')) return;
+
+      try {
+        await adminDeleteAccount(accountId);
+        showFlash(label + ' account deleted!', 'success');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== ADD ACCOUNT ========================
+    function openAddAccountModal(userId, email) {
+      document.getElementById('add-account-user-id').value = userId;
+      document.getElementById('add-account-subtitle').innerText = 'Add an account for ' + email;
+      document.getElementById('add-account-type').value = 'checking';
+      document.getElementById('add-account-number').value = '';
+      document.getElementById('add-account-balance').value = '0.00';
+      document.getElementById('add-account-credit-limit').value = '5000.00';
+      document.getElementById('add-credit-limit-group').style.display = 'none';
+      openModal('add-account-modal');
+    }
+
+    // Toggle credit limit field
+    document.addEventListener('change', function(e) {
+      if (e.target.id === 'add-account-type') {
+        document.getElementById('add-credit-limit-group').style.display =
+          e.target.value === 'credit_card' ? 'block' : 'none';
+      }
+    });
+
+    async function submitAddAccount() {
+      var userId = document.getElementById('add-account-user-id').value;
+      var type = document.getElementById('add-account-type').value;
+      var accountNumber = document.getElementById('add-account-number').value.trim();
+      var balance = parseFloat(document.getElementById('add-account-balance').value) || 0;
+      var creditLimit = parseFloat(document.getElementById('add-account-credit-limit').value) || 0;
+
+      try {
+        await adminAddAccount(userId, type, accountNumber || null, balance, creditLimit);
+        showFlash('Account added!', 'success');
+        closeModal('add-account-modal');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== FLASH ========================
+    function showFlash(msg, type) {
+      var el = document.getElementById('edit-flash');
+      el.innerText = msg;
+      el.className = 'edit-flash ' + type;
+      setTimeout(function() { el.className = 'edit-flash'; }, 5000);
+    }
+  </script>
+
+</body>
+</html>

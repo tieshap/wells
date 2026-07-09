@@ -1,0 +1,237 @@
+/* Dashboard Styles */
+:root {
+  --wf-red: #D71E28;
+  --wf-dark: #333;
+  --wf-light-text: #666;
+}
+
+body.dashboard-body {
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, #c7cde3 0%, #e3dbe1 25%, #f6eff0 50%, #f6eff0 100%);
+  background-attachment: fixed;
+  color: var(--wf-dark);
+  padding-bottom: 70px; /* Space for bottom nav */
+}
+
+/* Top navigation bar */
+.dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  height: 44px;
+}
+
+.dash-top-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.dash-icon-btn, .dash-signout-btn {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.dash-signout-btn {
+  font-size: 14px;
+  font-weight: 400;
+  gap: 6px;
+}
+
+/* Main content area */
+.dash-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px 20px 30px;
+}
+
+.dash-header {
+  margin-bottom: 30px;
+  margin-top: 10px;
+}
+
+#dash-greeting {
+  font-size: 32px;
+  font-weight: 300;
+  color: #333;
+  margin: 0;
+  line-height: 1.1;
+}
+
+#dash-user-name-title {
+  font-size: 32px;
+  font-weight: 300;
+  color: #333;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#dash-subtitle {
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Account cards grid */
+.dash-accounts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.dash-account-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+
+.dash-account-meta h3 {
+  margin: 0 0 15px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #222;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dash-account-balance {
+  font-size: 34px;
+  font-weight: 300;
+  color: #222;
+  margin-bottom: 5px;
+  line-height: 1;
+}
+
+.dash-account-avail {
+  font-size: 13px;
+  color: #444;
+}
+
+/* FICO Card */
+.dash-fico-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  cursor: pointer;
+}
+
+.dash-fico-card span {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+/* Footer text */
+.dash-footer-text {
+  padding: 0 5px;
+  margin-bottom: 50px;
+}
+
+.dash-footer-text p {
+  font-size: 14px;
+  color: #000;
+  margin: 0 0 25px 0;
+  line-height: 1.4;
+}
+
+.dash-equal-housing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Bottom Navigation */
+.dash-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #444;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-item span {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: var(--wf-red);
+}
+
+/* Transaction section */
+.dash-section-title {
+  display: none; /* Hidden based on the mockup */
+}
+
+.dash-transactions {
+  display: none; /* Hidden based on the mockup */
+}
+
+/* Loading & error states */
+.dash-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.dash-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e0e0e0;
+  border-top-color: var(--wf-red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 600px) {
+  .dash-bottom-nav {
+    max-width: 600px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+}

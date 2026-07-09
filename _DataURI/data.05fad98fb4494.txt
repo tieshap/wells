@@ -1,0 +1,1 @@
+chrome-extension://hiomakjbdlimgpanofghgneajckhejpj/filters/local_script_rules.js
