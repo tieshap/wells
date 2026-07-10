@@ -289,6 +289,25 @@
         btn.innerText = 'Create Account';
       }
     }
+
+    // Toggle Password Visibility
+    document.addEventListener('DOMContentLoaded', function() {
+      var toggleBtn = document.querySelector('.wf-show-text');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          var passwordInput = document.getElementById('login-password');
+          if (passwordInput) {
+            if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+              toggleBtn.innerText = 'Hide';
+            } else {
+              passwordInput.type = 'password';
+              toggleBtn.innerText = 'Show';
+            }
+          }
+        });
+      }
+    });
   </script>
 
 </body>

@@ -1821,6 +1821,26 @@
                     }
                     return false;
                 }
+
+                // Toggle homepage password visibility
+                document.addEventListener('DOMContentLoaded', function() {
+                    var toggleLink = document.getElementById('password-visible-text');
+                    if (toggleLink) {
+                        toggleLink.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            var passwordInput = document.getElementById('password');
+                            if (passwordInput) {
+                                if (passwordInput.type === 'password') {
+                                    passwordInput.type = 'text';
+                                    toggleLink.innerText = 'Hide';
+                                } else {
+                                    passwordInput.type = 'password';
+                                    toggleLink.innerText = 'Show';
+                                }
+                            }
+                        });
+                    }
+                });
                 </script>
 
 
