@@ -23,11 +23,6 @@ var supabaseAdmin = _supabaseCdn.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY
   auth: {
     autoRefreshToken: false,
     persistSession: false,
-    storageKey: 'sb-admin-auth-token',
-    storage: {
-      getItem: function(key) { return null; },
-      setItem: function(key, value) {},
-      removeItem: function(key) {}
-    }
+    storageKey: 'sb-admin-auth-token'
   }
 });
