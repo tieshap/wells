@@ -33,21 +33,25 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own profile
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
 
 -- Users can update their own profile
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
 -- Admins can view all profiles (uses SECURITY DEFINER function, no recursion)
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
 -- Admins can update all profiles
+DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
 CREATE POLICY "Admins can update all profiles"
   ON public.profiles FOR UPDATE
   USING (public.is_admin());
@@ -68,21 +72,25 @@ CREATE TABLE IF NOT EXISTS public.accounts (
 ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own accounts
+DROP POLICY IF EXISTS "Users can view own accounts" ON public.accounts;
 CREATE POLICY "Users can view own accounts"
   ON public.accounts FOR SELECT
   USING (auth.uid() = user_id);
 
 -- Admins can view all accounts
+DROP POLICY IF EXISTS "Admins can view all accounts" ON public.accounts;
 CREATE POLICY "Admins can view all accounts"
   ON public.accounts FOR SELECT
   USING (public.is_admin());
 
 -- Admins can update all accounts
+DROP POLICY IF EXISTS "Admins can update all accounts" ON public.accounts;
 CREATE POLICY "Admins can update all accounts"
   ON public.accounts FOR UPDATE
   USING (public.is_admin());
 
 -- Admins can insert accounts
+DROP POLICY IF EXISTS "Admins can insert accounts" ON public.accounts;
 CREATE POLICY "Admins can insert accounts"
   ON public.accounts FOR INSERT
   WITH CHECK (public.is_admin());
@@ -104,6 +112,7 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
 -- Users can view transactions on their own accounts
+DROP POLICY IF EXISTS "Users can view own transactions" ON public.transactions;
 CREATE POLICY "Users can view own transactions"
   ON public.transactions FOR SELECT
   USING (
@@ -111,21 +120,25 @@ CREATE POLICY "Users can view own transactions"
   );
 
 -- Admins can view all transactions
+DROP POLICY IF EXISTS "Admins can view all transactions" ON public.transactions;
 CREATE POLICY "Admins can view all transactions"
   ON public.transactions FOR SELECT
   USING (public.is_admin());
 
 -- Admins can update all transactions
+DROP POLICY IF EXISTS "Admins can update all transactions" ON public.transactions;
 CREATE POLICY "Admins can update all transactions"
   ON public.transactions FOR UPDATE
   USING (public.is_admin());
 
 -- Admins can insert transactions
+DROP POLICY IF EXISTS "Admins can insert transactions" ON public.transactions;
 CREATE POLICY "Admins can insert transactions"
   ON public.transactions FOR INSERT
   WITH CHECK (public.is_admin());
 
 -- Admins can delete transactions
+DROP POLICY IF EXISTS "Admins can delete transactions" ON public.transactions;
 CREATE POLICY "Admins can delete transactions"
   ON public.transactions FOR DELETE
   USING (public.is_admin());
