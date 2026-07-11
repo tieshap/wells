@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   email TEXT NOT NULL,
   full_name TEXT DEFAULT '',
   is_admin BOOLEAN DEFAULT false,
+  customer_since INTEGER DEFAULT 2002,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -44,6 +45,11 @@ CREATE POLICY "Users can update own profile"
 -- Admins can view all profiles (uses SECURITY DEFINER function, no recursion)
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
+  USING (public.is_admin());
+
+-- Admins can update all profiles
+CREATE POLICY "Admins can update all profiles"
+  ON public.profiles FOR UPDATE
   USING (public.is_admin());
 
 -- ============================================================

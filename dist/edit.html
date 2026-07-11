@@ -319,6 +319,31 @@
     </div>
   </div>
 
+  <!-- ======================== EDIT PROFILE MODAL ======================== -->
+  <div class="edit-modal-overlay" id="edit-profile-modal">
+    <div class="edit-modal" style="max-width:400px;">
+      <h2>Edit Profile</h2>
+      <p class="edit-modal-subtitle">Update user details and wallet metadata</p>
+      
+      <input type="hidden" id="edit-profile-user-id">
+
+      <div class="edit-form-group">
+        <label>Full Name</label>
+        <input type="text" id="edit-profile-name" placeholder="e.g. John Smith">
+      </div>
+
+      <div class="edit-form-group">
+        <label>Customer Since (Year)</label>
+        <input type="number" id="edit-profile-customer-since" placeholder="e.g. 2002">
+      </div>
+
+      <div class="edit-modal-actions">
+        <button class="edit-btn edit-btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
+        <button class="edit-btn edit-btn-primary" onclick="submitEditProfile()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ======================== ADMIN PASSWORD GATE ======================== -->
   <div class="edit-modal-overlay open" id="password-gate" style="display:flex;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);">
     <div class="edit-modal" style="max-width:400px;text-align:center;">
@@ -451,6 +476,7 @@
             }
           </td>
           <td class="action-cell" style="flex-wrap: wrap;">
+            <button class="edit-btn edit-btn-secondary edit-btn-sm" onclick="openEditProfileModal('${profile.id}')">Edit Profile</button>
             <button class="edit-btn edit-btn-secondary edit-btn-sm" onclick="openAddAccountModal('${profile.id}', '${profile.email}')">Add Account</button>
             ${profile.is_admin ? '' : '<button class="edit-btn edit-btn-outline edit-btn-sm" onclick="makeAdmin(\'' + profile.id + '\', \'' + profile.email + '\')">Make Admin</button>'}
             <button class="edit-btn edit-btn-danger edit-btn-sm" onclick="deleteUser('${profile.id}', '${profile.email}')">Delete User</button>
@@ -491,6 +517,42 @@
         await loadAdminData();
       } catch (err) {
         showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== EDIT PROFILE MODAL ========================
+    function openEditProfileModal(profileId) {
+      var profile = allProfiles.find(function(p) { return p.id === profileId; });
+      if (!profile) return;
+
+      document.getElementById('edit-profile-user-id').value = profile.id;
+      document.getElementById('edit-profile-name').value = profile.full_name || '';
+      document.getElementById('edit-profile-customer-since').value = profile.customer_since || 2002;
+
+      openModal('edit-profile-modal');
+    }
+
+    async function submitEditProfile() {
+      var userId = document.getElementById('edit-profile-user-id').value;
+      var name = document.getElementById('edit-profile-name').value.trim();
+      var sinceInput = document.getElementById('edit-profile-customer-since').value;
+      var since = sinceInput ? parseInt(sinceInput, 10) : 2002;
+
+      if (isNaN(since)) {
+        alert('Please enter a valid year');
+        return;
+      }
+
+      try {
+        await adminUpdateProfile(userId, {
+          full_name: name,
+          customer_since: since
+        });
+        closeModal('edit-profile-modal');
+        showFlash('User profile updated successfully!', 'success');
+        await loadAdminData();
+      } catch (err) {
+        showFlash('Error updating profile: ' + err.message, 'error');
       }
     }
 

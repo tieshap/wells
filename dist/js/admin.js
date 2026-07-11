@@ -228,3 +228,16 @@ async function adminGetAccountTransactions(accountId) {
   if (error) throw new Error(error.message);
   return data || [];
 }
+
+// ======================== UPDATE USER PROFILE ========================
+async function adminUpdateProfile(userId, updates) {
+  var { data, error } = await supabaseAdmin
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}

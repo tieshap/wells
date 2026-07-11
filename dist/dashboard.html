@@ -105,7 +105,8 @@
       var name = profile?.full_name || user.email;
       var firstName = name.split(' ')[0].toUpperCase();
       document.getElementById('dash-user-name-title').innerText = firstName;
-      document.getElementById('dash-subtitle').innerText = 'Customer since 2002';
+      var customerSince = profile?.customer_since || 2002;
+      document.getElementById('dash-subtitle').innerText = 'Customer since ' + customerSince;
 
       // Show admin link
       if (profile?.is_admin) {
