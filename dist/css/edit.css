@@ -548,8 +548,229 @@ body.edit-body {
   color: var(--foreground);
 }
 
-@media (max-width: 600px) {
-  .edit-container { padding: 20px 16px; }
-  .edit-tabs { gap: 16px; }
-  .action-cell { flex-direction: column; }
+/* Responsive Grid */
+.edit-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Responsive Overhaul */
+@media (max-width: 768px) {
+  /* Header & Navigation */
+  .edit-topbar {
+    padding: 0 16px;
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .edit-top-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #admin-email {
+    display: none; /* Hide admin email on smaller screens to save space */
+  }
+
+  /* Layout Container */
+  .edit-container {
+    padding: 20px 16px;
+  }
+
+  .edit-header h1 {
+    font-size: 20px;
+  }
+
+  /* Tab Navigation */
+  .edit-tabs-wrapper {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 24px;
+  }
+
+  .edit-tabs {
+    gap: 16px;
+    padding-bottom: 6px;
+  }
+
+  .edit-tab {
+    padding-bottom: 8px;
+    font-size: 13px;
+  }
+
+  /* Table Cards View */
+  .edit-table-wrapper {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .edit-table, 
+  .edit-table thead, 
+  .edit-table tbody, 
+  .edit-table th, 
+  .edit-table td, 
+  .edit-table tr {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .edit-table thead {
+    display: none; /* Hide table headers */
+  }
+
+  .edit-table tr {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+    transition: transform 0.15s ease;
+  }
+
+  .edit-table tr:hover td {
+    background: transparent;
+  }
+
+  .edit-table td {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--foreground);
+    text-align: right;
+  }
+
+  .edit-table td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  /* Add data label as prefix */
+  .edit-table td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    margin-right: 16px;
+    margin-top: 1px;
+  }
+
+  /* Specific styling for accounts list in user rows */
+  .edit-table td[data-label="Accounts"] {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .edit-table td[data-label="Accounts"]::before {
+    margin-bottom: 8px;
+  }
+
+  .edit-table td[data-label="Accounts"] .account-row {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .edit-table td[data-label="Accounts"] .account-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  /* Actions button panel */
+  .edit-table td.action-cell {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .edit-table td.action-cell::before {
+    display: none; /* Hide label for actions cell as buttons are descriptive */
+  }
+
+  .edit-table td.action-cell .edit-btn {
+    flex: 1;
+    min-width: calc(50% - 8px); /* 2 columns on medium, drops to full-width on mobile */
+    justify-content: center;
+  }
+
+  .edit-table td.action-cell .icon-btn {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  /* Search & Controls */
+  .edit-search-box {
+    width: 100%;
+  }
+
+  .edit-search-box input {
+    max-width: 100%;
+  }
+
+  #panel-users > div:first-child {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  #panel-users > div:first-child button {
+    width: 100%;
+  }
+
+  /* Modals */
+  .edit-modal {
+    padding: 24px;
+    width: 95%;
+  }
+
+  .edit-modal h2 {
+    font-size: 16px;
+  }
+
+  .edit-modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .edit-modal-actions .edit-btn {
+    width: 100%;
+  }
+
+  .edit-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Transactions specific mobile styles */
+  #panel-transactions > div:last-child {
+    text-align: center;
+  }
+
+  #panel-transactions > div:last-child button {
+    width: 100%;
+    margin-top: 12px;
+  }
 }
