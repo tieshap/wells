@@ -178,6 +178,31 @@
         await seedDefaultAccounts();
         accounts = await getUserAccounts();
         globalAccounts = accounts;
+      } else {
+        // For existing users, let's verify if historical transactions starting from Customer since year are present in Checking
+        try {
+          var profile = await getUserProfile();
+          var checkingAccount = accounts.find(function(a) { return a.type === 'checking'; });
+          if (checkingAccount) {
+            var txs = await getAccountTransactions(checkingAccount.id);
+            var customerSince = profile?.customer_since || 2002;
+            var hasHistorical = txs.some(function(tx) { return tx.date.startsWith(customerSince.toString()); });
+            if (!hasHistorical) {
+              var histTxs = [
+                { account_id: checkingAccount.id, date: customerSince + '-01-15', description: 'Account Opened - Initial Deposit', amount: 10000.00, type: 'credit', category: 'deposit' },
+                { account_id: checkingAccount.id, date: (customerSince + 1) + '-04-20', description: 'Interest Payment - High Yield Reward', amount: 245.50, type: 'credit', category: 'interest' },
+                { account_id: checkingAccount.id, date: (customerSince + 3) + '-09-12', description: 'Branch Cash Withdrawal', amount: 500.00, type: 'debit', category: 'withdrawal' },
+                { account_id: checkingAccount.id, date: (customerSince + 6) + '-11-05', description: 'Historical Stock Buy - WFC', amount: 1200.00, type: 'debit', category: 'investment' },
+                { account_id: checkingAccount.id, date: (customerSince + 12) + '-07-22', description: 'Loyalty Bonus - Wells Fargo Advisor', amount: 500.00, type: 'credit', category: 'bonus' }
+              ];
+              for (var i = 0; i < histTxs.length; i++) {
+                await supabase.from('transactions').insert(histTxs[i]);
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Error checking/seeding historical transactions:", e);
+        }
       }
 
       globalTransactions = [];
@@ -234,6 +259,7 @@
       if (!user) return;
 
       var profile = await getUserProfile();
+      var customerSince = profile?.customer_since || 2002;
       
       // Check if accounts already exist
       var existing = await getUserAccounts();
@@ -272,18 +298,26 @@
 
         if (data) {
           // Seed some transactions for this account
-          await seedTransactions(data.id, data.type);
+          await seedTransactions(data.id, data.type, customerSince);
         }
       }
     }
 
     // ======================== SEED TRANSACTIONS ========================
-    async function seedTransactions(accountId, type) {
+    async function seedTransactions(accountId, type, customerSince) {
       var transactions = [];
       var now = new Date();
+      var startYear = customerSince || 2002;
 
       if (type === 'checking') {
         transactions = [
+          // Historical transactions starting from the Customer since year
+          { account_id: accountId, date: startYear + '-01-15', description: 'Account Opened - Initial Deposit', amount: 10000.00, type: 'credit', category: 'deposit' },
+          { account_id: accountId, date: (startYear + 1) + '-04-20', description: 'Interest Payment - High Yield Reward', amount: 245.50, type: 'credit', category: 'interest' },
+          { account_id: accountId, date: (startYear + 3) + '-09-12', description: 'Branch Cash Withdrawal', amount: 500.00, type: 'debit', category: 'withdrawal' },
+          { account_id: accountId, date: (startYear + 6) + '-11-05', description: 'Historical Stock Buy - WFC', amount: 1200.00, type: 'debit', category: 'investment' },
+          { account_id: accountId, date: (startYear + 12) + '-07-22', description: 'Loyalty Bonus - Wells Fargo Advisor', amount: 500.00, type: 'credit', category: 'bonus' },
+
           { account_id: accountId, date: new Date(now.getTime() - 1*86400000).toISOString().split('T')[0], description: 'Direct Deposit - EMPLOYER INC', amount: 2450.00, type: 'credit', category: 'income' },
           { account_id: accountId, date: new Date(now.getTime() - 3*86400000).toISOString().split('T')[0], description: 'ATM Withdrawal', amount: 200.00, type: 'debit', category: 'withdrawal' },
           { account_id: accountId, date: new Date(now.getTime() - 5*86400000).toISOString().split('T')[0], description: 'Online Payment - ELECTRIC BILL', amount: 145.30, type: 'debit', category: 'bills' },
