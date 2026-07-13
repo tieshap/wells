@@ -344,6 +344,56 @@
       }
     }
 
+    // ======================== DATE FORMATTER (MM/DD/YY) ========================
+    function formatDateMMDDYY(dateStr) {
+      if (!dateStr) return '';
+      var parts = dateStr.split('-');
+      if (parts.length === 3) {
+        var yy = parts[0].slice(-2);
+        var mm = parts[1];
+        var dd = parts[2];
+        return mm + '/' + dd + '/' + yy;
+      }
+      var d = new Date(dateStr);
+      var mm = String(d.getMonth() + 1).padStart(2, '0');
+      var dd = String(d.getDate()).padStart(2, '0');
+      var yy = String(d.getFullYear()).slice(-2);
+      return mm + '/' + dd + '/' + yy;
+    }
+
+    // ======================== RENDER SINGLE TRANSACTION HTML ========================
+    function renderTransactionHtml(tx) {
+      var isCredit = tx.type === 'credit';
+      var cleanRef = '#' + (tx.id || '').replace(/-/g, '').slice(0, 16).toUpperCase();
+      if (cleanRef.length < 17) {
+        var suffix = tx.accountType === 'checking' ? 'IXAFF' : tx.accountType === 'savings' ? 'TF278' : 'PPMQ';
+        cleanRef = '#F3531008H000' + suffix;
+      }
+      return `
+        <div class="wf-tx-item">
+          <div class="wf-tx-expand-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+          </div>
+          <div class="wf-tx-details">
+            <div class="wf-tx-desc">${tx.description.toUpperCase()}</div>
+            <div class="wf-tx-ref">${cleanRef}</div>
+            <div class="wf-tx-label">Transaction</div>
+            <div class="wf-tx-date">Date ${formatDateMMDDYY(tx.date)}</div>
+            <div class="wf-tx-posting-date">Posting Date ${formatDateMMDDYY(tx.date)}</div>
+          </div>
+          <div class="wf-tx-amount-col">
+            <div class="wf-tx-amount ${isCredit ? 'tx-credit-amount' : 'tx-debit-amount'}">
+              ${isCredit ? '+ ' : ''}${formatCurrency(tx.amount)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // ======================== RENDER TRANSACTIONS ========================
     function renderAllTransactions(transactions, accounts) {
       var container = document.getElementById('transactions-list');
@@ -359,19 +409,8 @@
       }
 
       transactions.forEach(function(tx) {
-        var isCredit = tx.type === 'credit';
         var item = document.createElement('div');
-        item.className = 'dash-transaction-item';
-        item.innerHTML = `
-          <div class="dash-tx-icon ${isCredit ? 'tx-credit' : 'tx-debit'}">${isCredit ? '↓' : '↑'}</div>
-          <div class="dash-tx-info">
-            <div class="dash-tx-desc">${tx.description}</div>
-            <div class="dash-tx-date">${formatDate(tx.date)} · ${tx.accountLabel || ''}</div>
-          </div>
-          <div class="dash-tx-amount ${isCredit ? 'tx-credit-amount' : 'tx-debit-amount'}">
-            ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
-          </div>
-        `;
+        item.innerHTML = renderTransactionHtml(tx);
         container.appendChild(item);
       });
     }
@@ -421,19 +460,7 @@
         html += '<div class="dash-no-transactions">No transactions yet</div>';
       } else {
         transactions.forEach(function(tx) {
-          var isCredit = tx.type === 'credit';
-          html += `
-            <div class="dash-transaction-item">
-              <div class="dash-tx-icon ${isCredit ? 'tx-credit' : 'tx-debit'}">${isCredit ? '↓' : '↑'}</div>
-              <div class="dash-tx-info">
-                <div class="dash-tx-desc">${tx.description}</div>
-                <div class="dash-tx-date">${formatDate(tx.date)}</div>
-              </div>
-              <div class="dash-tx-amount ${isCredit ? 'tx-credit-amount' : 'tx-debit-amount'}">
-                ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
-              </div>
-            </div>
-          `;
+          html += renderTransactionHtml(tx);
         });
       }
 
@@ -520,19 +547,8 @@
       }
 
       filtered.forEach(function(tx) {
-        var isCredit = tx.type === 'credit';
         var item = document.createElement('div');
-        item.className = 'dash-transaction-item';
-        item.innerHTML = `
-          <div class="dash-tx-icon ${isCredit ? 'tx-credit' : 'tx-debit'}">${isCredit ? '↓' : '↑'}</div>
-          <div class="dash-tx-info">
-            <div class="dash-tx-desc">${tx.description}</div>
-            <div class="dash-tx-date">${formatDate(tx.date)} · ${tx.accountLabel || ''} ...${(tx.accountNumber || '').slice(-4)}</div>
-          </div>
-          <div class="dash-tx-amount ${isCredit ? 'tx-credit-amount' : 'tx-debit-amount'}">
-            ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
-          </div>
-        `;
+        item.innerHTML = renderTransactionHtml(tx);
         container.appendChild(item);
       });
     }
