@@ -76,8 +76,49 @@
     </div>
 
     <!-- Account Detail View -->
-    <div class="dash-account-detail" id="account-detail">
+    <div class="dash-account-detail" id="account-detail" style="display:none;">
       <div id="account-detail-content"></div>
+    </div>
+
+    <!-- Transaction History View -->
+    <div class="dash-history-view" id="history-view" style="display:none;">
+      <div class="history-header">
+        <h1 style="font-size: 28px; font-weight: 300; color: #333; margin: 0 0 5px 0;">Transaction History</h1>
+        <p style="color: #666; font-size: 14px; margin: 0;">Search and filter all account activity</p>
+      </div>
+
+      <div class="history-filters">
+        <input type="text" id="history-search" class="history-search-input" placeholder="Search transactions..." oninput="filterHistory()">
+        
+        <div class="filter-row">
+          <select id="history-account-filter" class="history-select" onchange="filterHistory()">
+            <option value="all">All Accounts</option>
+            <option value="checking">Checking</option>
+            <option value="savings">Savings</option>
+            <option value="credit_card">Credit Card</option>
+          </select>
+
+          <select id="history-type-filter" class="history-select" onchange="filterHistory()">
+            <option value="all">All Transactions</option>
+            <option value="credit">Deposits (+)</option>
+            <option value="debit">Payments (-)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dash-transactions-container" id="history-list-container">
+        <!-- Rendered list of transactions -->
+      </div>
+    </div>
+
+    <!-- Placeholder View (Coming Soon) -->
+    <div class="dash-coming-soon-view" id="coming-soon-view" style="display:none;">
+      <div class="dash-account-card" style="text-align: center; padding: 60px 20px;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🔒</div>
+        <h2 id="coming-soon-title" style="font-size: 20px; font-weight: 600; margin: 0 0 10px 0;">Feature Coming Soon</h2>
+        <p style="color: #666; font-size: 14px; margin: 0 0 20px 0;">We are currently updating our security and transfer systems. Please check back later.</p>
+        <button class="dash-signout-btn" onclick="switchTab('accounts')" style="margin: 0 auto; background: var(--wf-red); color: white; padding: 8px 20px; border-radius: 6px; font-weight: 600;">Go to Accounts</button>
+      </div>
     </div>
 
   </div>
@@ -124,6 +165,7 @@
       document.getElementById('main-view').style.display = 'none';
 
       var accounts = await getUserAccounts();
+      globalAccounts = accounts;
 
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('main-view').style.display = 'block';
@@ -135,9 +177,16 @@
         // Seed default accounts for new users
         await seedDefaultAccounts();
         accounts = await getUserAccounts();
+        globalAccounts = accounts;
       }
 
-      var allTransactions = [];
+      globalTransactions = [];
+      var loadedCount = 0;
+
+      if (accounts.length === 0) {
+        renderAllTransactions([], accounts);
+        return;
+      }
 
       accounts.forEach(function(account) {
         var card = document.createElement('div');
@@ -167,9 +216,14 @@
           txs.forEach(function(tx) {
             tx.accountType = account.type;
             tx.accountLabel = getAccountLabel(account.type);
+            tx.accountNumber = account.account_number;
           });
-          allTransactions = allTransactions.concat(txs);
-          renderAllTransactions(allTransactions, accounts);
+          globalTransactions = globalTransactions.concat(txs);
+          loadedCount++;
+          if (loadedCount === accounts.length) {
+            renderAllTransactions(globalTransactions, accounts);
+            populateHistory();
+          }
         });
       });
     }
@@ -354,30 +408,124 @@
     }
 
     function showMainView() {
-      document.getElementById('main-view').style.display = 'block';
+      switchTab('accounts');
+    }
+
+    var globalAccounts = [];
+    var globalTransactions = [];
+
+    function switchTab(tabName) {
+      // 1. Update navigation items
+      var navItems = document.querySelectorAll('.dash-bottom-nav .nav-item');
+      navItems.forEach(function(item) {
+        item.classList.remove('active');
+      });
+
+      // 2. Hide all view containers
+      document.getElementById('main-view').style.display = 'none';
       document.getElementById('account-detail').style.display = 'none';
+      document.getElementById('history-view').style.display = 'none';
+      document.getElementById('coming-soon-view').style.display = 'none';
+
+      // 3. Activate selected tab
+      if (tabName === 'accounts') {
+        document.getElementById('nav-accounts').classList.add('active');
+        document.getElementById('main-view').style.display = 'block';
+      } else if (tabName === 'history') {
+        document.getElementById('nav-history').classList.add('active');
+        document.getElementById('history-view').style.display = 'block';
+        populateHistory();
+      } else {
+        var tabTitle = 'Feature';
+        if (tabName === 'deposit') {
+          tabTitle = 'Mobile Deposit';
+          document.getElementById('nav-deposit').classList.add('active');
+        } else if (tabName === 'pay-transfer') {
+          tabTitle = 'Pay & Transfer';
+          document.getElementById('nav-pay').classList.add('active');
+        } else if (tabName === 'menu') {
+          tabTitle = 'Menu';
+          document.getElementById('nav-menu').classList.add('active');
+        }
+        document.getElementById('coming-soon-title').innerText = tabTitle + ' Coming Soon';
+        document.getElementById('coming-soon-view').style.display = 'block';
+      }
+    }
+
+    function populateHistory() {
+      filterHistory();
+    }
+
+    function filterHistory() {
+      var searchVal = (document.getElementById('history-search').value || '').toLowerCase().trim();
+      var accountVal = document.getElementById('history-account-filter').value;
+      var typeVal = document.getElementById('history-type-filter').value;
+
+      var filtered = globalTransactions.filter(function(tx) {
+        // Search
+        var matchesSearch = tx.description.toLowerCase().includes(searchVal);
+        
+        // Account
+        var matchesAccount = accountVal === 'all' || tx.accountType === accountVal;
+
+        // Type
+        var matchesType = typeVal === 'all' || tx.type === typeVal;
+
+        return matchesSearch && matchesAccount && matchesType;
+      });
+
+      var container = document.getElementById('history-list-container');
+      container.innerHTML = '';
+
+      // Sort by date desc
+      filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="dash-no-transactions">No matching transactions found</div>';
+        return;
+      }
+
+      filtered.forEach(function(tx) {
+        var isCredit = tx.type === 'credit';
+        var item = document.createElement('div');
+        item.className = 'dash-transaction-item';
+        item.innerHTML = `
+          <div class="dash-tx-icon ${isCredit ? 'tx-credit' : 'tx-debit'}">${isCredit ? '↓' : '↑'}</div>
+          <div class="dash-tx-info">
+            <div class="dash-tx-desc">${tx.description}</div>
+            <div class="dash-tx-date">${formatDate(tx.date)} · ${tx.accountLabel || ''} ...${(tx.accountNumber || '').slice(-4)}</div>
+          </div>
+          <div class="dash-tx-amount ${isCredit ? 'tx-credit-amount' : 'tx-debit-amount'}">
+            ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
+          </div>
+        `;
+        container.appendChild(item);
+      });
     }
   </script>
 
   <!-- Bottom Navigation -->
   <nav class="dash-bottom-nav">
-    <a href="#" class="nav-item active">
+    <a href="#" class="nav-item active" onclick="switchTab('accounts'); return false;" id="nav-accounts">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="24" height="24"><path d="M12 3l10 9h-3v9H5v-9H2z"/></svg>
       <span>Accounts</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" onclick="switchTab('deposit'); return false;" id="nav-deposit">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
       <span>Deposit</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" onclick="switchTab('pay-transfer'); return false;" id="nav-pay">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="12" y1="8" x2="12" y2="18"/><circle cx="12" cy="12" r="10"/></svg>
       <span>Pay & Transfer</span>
     </a>
-    <a href="#" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-      <span>Explore</span>
+    <a href="#" class="nav-item" onclick="switchTab('history'); return false;" id="nav-history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <span>History</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" onclick="switchTab('menu'); return false;" id="nav-menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       <span>Menu</span>
     </a>
