@@ -196,7 +196,7 @@
                 { account_id: checkingAccount.id, date: (customerSince + 12) + '-07-22', description: 'Loyalty Bonus - Wells Fargo Advisor', amount: 500.00, type: 'credit', category: 'bonus' }
               ];
               for (var i = 0; i < histTxs.length; i++) {
-                await supabase.from('transactions').insert(histTxs[i]);
+                await supabaseAdmin.from('transactions').insert(histTxs[i]);
               }
             }
           }
@@ -290,7 +290,7 @@
       ];
 
       for (var i = 0; i < accounts.length; i++) {
-        var { data, error } = await supabase
+        var { data, error } = await supabaseAdmin
           .from('accounts')
           .insert(accounts[i])
           .select()
@@ -340,7 +340,7 @@
       }
 
       for (var i = 0; i < transactions.length; i++) {
-        await supabase.from('transactions').insert(transactions[i]);
+        await supabaseAdmin.from('transactions').insert(transactions[i]);
       }
     }
 
