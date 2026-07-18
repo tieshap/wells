@@ -20,6 +20,7 @@
       <span class="edit-badge">Admin</span>
       <span id="admin-email"></span>
       <a href="dashboard.html">Dashboard</a>
+      <button class="edit-btn edit-btn-outline edit-btn-sm" onclick="refreshSchema()" title="Refresh PostgREST schema cache after adding columns">↻ Schema</button>
       <button class="edit-btn edit-btn-outline edit-btn-sm" onclick="signOut()">Sign Out</button>
     </div>
   </header>
@@ -909,6 +910,16 @@
         await loadAdminData();
       } catch (err) {
         showFlash('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ======================== REFRESH SCHEMA CACHE ========================
+    async function refreshSchema() {
+      try {
+        await adminRefreshSchemaCache();
+        showFlash('Schema cache refreshed! Changes should take effect immediately.', 'success');
+      } catch (err) {
+        showFlash('Error refreshing schema: ' + err.message, 'error');
       }
     }
 

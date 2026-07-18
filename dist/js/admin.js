@@ -243,3 +243,12 @@ async function adminUpdateProfile(userId, updates) {
   if (error) throw new Error(error.message);
   return data;
 }
+
+// ======================== REFRESH PostgREST SCHEMA CACHE ========================
+// Call this after adding new columns to a table to avoid
+// "Could not find the '...' column of '...' in the schema cache" errors.
+async function adminRefreshSchemaCache() {
+  var { error } = await supabaseAdmin.rpc('refresh_schema_cache');
+  if (error) throw new Error(error.message);
+  return true;
+}

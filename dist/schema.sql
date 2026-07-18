@@ -166,7 +166,35 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================
--- 5. SET UP INITIAL ADMIN USER
+-- 5. ENSURE balance_label COLUMN EXISTS (for schema cache fix)
+-- ============================================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'accounts' AND column_name = 'balance_label'
+  ) THEN
+    ALTER TABLE public.accounts ADD COLUMN balance_label TEXT DEFAULT 'available';
+  END IF;
+END;
+$$;
+
+-- ============================================================
+-- 6. RPC FUNCTION: refresh PostgREST schema cache
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.refresh_schema_cache()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  NOTIFY pgrst, 'reload schema';
+END;
+$$;
+
+-- ============================================================
+-- 7. SET UP INITIAL ADMIN USER
 -- ============================================================
 -- After creating your admin account through the signup page,
 -- run this SQL to make yourself an admin:
