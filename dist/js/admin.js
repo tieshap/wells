@@ -80,7 +80,8 @@ async function adminCreateUser(email, password, fullName, accounts) {
         type: a.type,
         account_number: a.accountNumber || generateAccountNumber(),
         balance: a.balance || 0,
-        credit_limit: a.type === 'credit_card' ? (a.creditLimit || 0) : null
+        credit_limit: a.type === 'credit_card' ? (a.creditLimit || 0) : null,
+        balance_label: a.balanceLabel || 'available'
       };
     });
 
@@ -99,13 +100,14 @@ function generateAccountNumber() {
 }
 
 // ======================== ADD ACCOUNT TO EXISTING USER ========================
-async function adminAddAccount(userId, type, accountNumber, balance, creditLimit) {
+async function adminAddAccount(userId, type, accountNumber, balance, creditLimit, balanceLabel) {
   var row = {
     user_id: userId,
     type: type,
     account_number: accountNumber || generateAccountNumber(),
     balance: balance || 0,
-    credit_limit: type === 'credit_card' ? (creditLimit || 0) : null
+    credit_limit: type === 'credit_card' ? (creditLimit || 0) : null,
+    balance_label: balanceLabel || 'available'
   };
 
   var { data, error } = await supabaseAdmin

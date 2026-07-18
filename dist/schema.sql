@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.accounts (
   account_number TEXT NOT NULL,
   balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
   credit_limit DECIMAL(12, 2) DEFAULT NULL,
+  balance_label TEXT DEFAULT 'available',
   created_at TIMESTAMPTZ DEFAULT now()
 );
 

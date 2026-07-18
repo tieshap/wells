@@ -205,6 +205,7 @@
       }
 
       accounts.forEach(function(account) {
+        var balanceLabel = getBalanceLabel(account);
         var card = document.createElement('div');
         card.className = 'dash-account-card';
         card.onclick = function() { showAccountDetail(account.id); };
@@ -220,8 +221,8 @@
           <div class="dash-account-balance">
             ${account.type === 'credit_card' ? '-' : ''}${formatCurrency(account.balance)}
           </div>
-          <div class="dash-account-avail">
-            Available balance
+          <div class="dash-account-avail" id="avail-label-${account.id}">
+            ${balanceLabel}
           </div>
         `;
 
@@ -542,6 +543,13 @@
         item.innerHTML = renderTransactionHtml(tx);
         container.appendChild(item);
       });
+    }
+
+    // ======================== BALANCE LABEL SETTING ========================
+    // Reads the balance_label from each account (set per-account in admin)
+    function getBalanceLabel(account) {
+      var mode = account?.balance_label || 'available';
+      return mode === 'current' ? 'Current balance' : 'Available balance';
     }
   </script>
 

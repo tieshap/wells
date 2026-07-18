@@ -127,6 +127,14 @@
       </div>
 
       <div class="edit-form-group">
+        <label>Balance Label</label>
+        <select id="edit-account-balance-label">
+          <option value="available">Available balance</option>
+          <option value="current">Current balance</option>
+        </select>
+      </div>
+
+      <div class="edit-form-group">
         <label>Account Number</label>
         <input type="text" id="edit-account-number">
       </div>
@@ -250,25 +258,58 @@
       <div>
         <h3 style="font-size:14px;margin:0 0 12px;color:var(--foreground);">Initial Account Balances (optional)</h3>
 
-        <div class="edit-modal-grid">
-          <div class="edit-form-group">
-            <label>Checking Balance ($)</label>
-            <input type="number" step="0.01" id="create-user-checking" placeholder="0.00" value="1000.00">
+        <div class="edit-form-group" style="grid-column:1/-1;">
+          <label>Checking</label>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance ($)</label>
+              <input type="number" step="0.01" id="create-user-checking" placeholder="0.00" value="1000.00" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance Label</label>
+              <select id="create-user-checking-label" style="width:100%;">
+                <option value="available">Available balance</option>
+                <option value="current">Current balance</option>
+              </select>
+            </div>
           </div>
+        </div>
 
-          <div class="edit-form-group">
-            <label>Savings Balance ($)</label>
-            <input type="number" step="0.01" id="create-user-savings" placeholder="0.00" value="500.00">
+        <div class="edit-form-group" style="grid-column:1/-1;">
+          <label>Savings</label>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance ($)</label>
+              <input type="number" step="0.01" id="create-user-savings" placeholder="0.00" value="500.00" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance Label</label>
+              <select id="create-user-savings-label" style="width:100%;">
+                <option value="available">Available balance</option>
+                <option value="current">Current balance</option>
+              </select>
+            </div>
           </div>
+        </div>
 
-          <div class="edit-form-group">
-            <label>Credit Card Balance ($)</label>
-            <input type="number" step="0.01" id="create-user-cc" placeholder="0.00" value="0.00">
-          </div>
-
-          <div class="edit-form-group">
-            <label>Credit Limit ($)</label>
-            <input type="number" step="0.01" id="create-user-cc-limit" placeholder="0.00" value="5000.00">
+        <div class="edit-form-group" style="grid-column:1/-1;">
+          <label>Credit Card</label>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance ($)</label>
+              <input type="number" step="0.01" id="create-user-cc" placeholder="0.00" value="0.00" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Balance Label</label>
+              <select id="create-user-cc-label" style="width:100%;">
+                <option value="available">Available balance</option>
+                <option value="current">Current balance</option>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px;color:var(--muted-foreground);font-weight:400;">Credit Limit ($)</label>
+              <input type="number" step="0.01" id="create-user-cc-limit" placeholder="0.00" value="5000.00" style="width:100%;box-sizing:border-box;">
+            </div>
           </div>
         </div>
       </div>
@@ -294,6 +335,14 @@
           <option value="checking">Checking</option>
           <option value="savings">Savings</option>
           <option value="credit_card">Credit Card</option>
+        </select>
+      </div>
+
+      <div class="edit-form-group">
+        <label>Balance Label</label>
+        <select id="add-account-balance-label">
+          <option value="available">Available balance</option>
+          <option value="current">Current balance</option>
         </select>
       </div>
 
@@ -431,7 +480,7 @@
       if (tab === 'users') {
         document.querySelectorAll('.edit-tab')[0].classList.add('active');
         document.getElementById('panel-users').classList.add('active');
-      } else {
+      } else if (tab === 'transactions') {
         document.querySelectorAll('.edit-tab')[1].classList.add('active');
         document.getElementById('panel-transactions').classList.add('active');
       }
@@ -563,6 +612,7 @@
 
       document.getElementById('edit-account-id').value = account.id;
       document.getElementById('edit-account-type').value = account.type;
+      document.getElementById('edit-account-balance-label').value = account.balance_label || 'available';
       document.getElementById('edit-account-number').value = account.account_number;
       document.getElementById('edit-account-balance').value = account.balance;
       document.getElementById('edit-account-credit-limit').value = account.credit_limit || '';
@@ -590,8 +640,9 @@
       var accountNumber = document.getElementById('edit-account-number').value;
       var balance = parseFloat(document.getElementById('edit-account-balance').value);
       var creditLimit = document.getElementById('edit-account-credit-limit').value;
+      var balanceLabel = document.getElementById('edit-account-balance-label').value;
 
-      var updates = { type: type, account_number: accountNumber, balance: balance };
+      var updates = { type: type, account_number: accountNumber, balance: balance, balance_label: balanceLabel };
       if (type === 'credit_card') {
         updates.credit_limit = parseFloat(creditLimit) || 0;
       } else {
@@ -754,8 +805,11 @@
       document.getElementById('create-user-email').value = '';
       document.getElementById('create-user-password').value = 'password2026';
       document.getElementById('create-user-checking').value = '1000.00';
+      document.getElementById('create-user-checking-label').value = 'available';
       document.getElementById('create-user-savings').value = '500.00';
+      document.getElementById('create-user-savings-label').value = 'available';
       document.getElementById('create-user-cc').value = '0.00';
+      document.getElementById('create-user-cc-label').value = 'available';
       document.getElementById('create-user-cc-limit').value = '5000.00';
       document.getElementById('create-user-btn').disabled = false;
       document.getElementById('create-user-btn').innerText = 'Create User';
@@ -778,16 +832,20 @@
       btn.disabled = true;
       btn.innerText = 'Creating...';
 
+      var checkingLabel = document.getElementById('create-user-checking-label').value;
+      var savingsLabel = document.getElementById('create-user-savings-label').value;
+      var ccLabel = document.getElementById('create-user-cc-label').value;
+
       // Build accounts array with non-zero balances
       var accounts = [];
       if (checkingBal > 0) {
-        accounts.push({ type: 'checking', balance: checkingBal });
+        accounts.push({ type: 'checking', balance: checkingBal, balanceLabel: checkingLabel });
       }
       if (savingsBal > 0) {
-        accounts.push({ type: 'savings', balance: savingsBal });
+        accounts.push({ type: 'savings', balance: savingsBal, balanceLabel: savingsLabel });
       }
       if (ccLimit > 0) {
-        accounts.push({ type: 'credit_card', balance: ccBal, creditLimit: ccLimit });
+        accounts.push({ type: 'credit_card', balance: ccBal, creditLimit: ccLimit, balanceLabel: ccLabel });
       }
 
       try {
@@ -820,6 +878,7 @@
       document.getElementById('add-account-user-id').value = userId;
       document.getElementById('add-account-subtitle').innerText = 'Add an account for ' + email;
       document.getElementById('add-account-type').value = 'checking';
+      document.getElementById('add-account-balance-label').value = 'available';
       document.getElementById('add-account-number').value = '';
       document.getElementById('add-account-balance').value = '0.00';
       document.getElementById('add-account-credit-limit').value = '5000.00';
@@ -841,9 +900,10 @@
       var accountNumber = document.getElementById('add-account-number').value.trim();
       var balance = parseFloat(document.getElementById('add-account-balance').value) || 0;
       var creditLimit = parseFloat(document.getElementById('add-account-credit-limit').value) || 0;
+      var balanceLabel = document.getElementById('add-account-balance-label').value;
 
       try {
-        await adminAddAccount(userId, type, accountNumber || null, balance, creditLimit);
+        await adminAddAccount(userId, type, accountNumber || null, balance, creditLimit, balanceLabel);
         showFlash('Account added!', 'success');
         closeModal('add-account-modal');
         await loadAdminData();
